@@ -14,6 +14,8 @@ Note: Python script used to process video and audio content was **100% vibe code
 
 **Disclaimer**: Before using this or any agentic tool, make sure you understand its autonomy in your system. This skill is provided for experimental purposes and you, as a user, take full responsibility for its actions. See [MIT License](LICENSE)
 
+**IMPORTANT**: I would like to advise you against extracting data from videos that haven't been done by you as unlikely, but potentially, they might be used for malicious prompt injection. There are some directives in the Skill to prevent this happening, but with LLMs nothing can be guaranteed. 
+
 ## What it does
 
 1. Extracts **keyframes** at scene changes using OpenCV
@@ -50,6 +52,9 @@ Note: Python script used to process video and audio content was **100% vibe code
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `-d_t`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+
+Setting custom detection threshold is useful to tune the Skill to different video sources. Time will tell which settings work best for different applications of this Skill. 
+More information will be added here.
 
 Example with custom threshold:
 
@@ -110,7 +115,12 @@ You are welcome to contribute:
 1. Extending the tool's capabilities by opening a PR
 2. Submitting bug fixes
 3. Adding usage examples in [references/usage-examples.md](references/usage-examples.md)
+4. Adding information on detection threshold settings recommended for specific applications in this file.
 
 ## License
 
 [MIT License](LICENSE)
+
+## Contact
+
+Piotr Lason: Find me on LinkedIn

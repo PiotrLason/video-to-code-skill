@@ -49,6 +49,18 @@ cp ~/Downloads/user-flow-walkthrough.mov ~/video-input-code-skill-storage/
 
 Claude will see every screen transition and hear your narration describing what you're clicking, then generate a Playwright test with the correct selectors, assertions, and page navigation matching the recorded flow.
 
+### 3. Create a walkthrough with screenshots of the screen recording and voice over
+
+```bash
+# 1. Do the prerequisite steps...
+
+# 2. Now run the skill
+/video-input-code-skill and create walkthrough with description of presented steps with screenshots, then convert to single file html
+
+# 3. Ready to be emailed
+```
+
+
 ## Edge Cases
 
 ### 1. Re-use a previously analyzed video
