@@ -76,12 +76,7 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    - Tell the user which archived video is being loaded (show the archive folder name).
    - If a matching folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 8.
 
-3. **Find the latest video file** (by modification time):
-   ```bash
-   find ~/video-to-code-skill-storage -maxdepth 1 -type f \( -name "*.mov" -o -name "*.mp4" -o -name "*.webm" \) -exec ls -t {} + | head -1
-   ```
-
-4. **Sanitize filenames** — replace invisible Unicode whitespace variants (e.g. macOS narrow no-break space `U+202F` before AM/PM) with regular spaces:
+3. **Sanitize filenames** — replace invisible Unicode whitespace variants (e.g. macOS narrow no-break space `U+202F` before AM/PM) with regular spaces:
    ```bash
    python3 -c "
    import os, re, glob
@@ -91,7 +86,14 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    "
    ```
 
-5. **If no video file found**, fall back to the most recent archived video:
+4. **Find the latest video file** (by modification time):
+   ```bash
+   find ~/video-to-code-skill-storage -maxdepth 1 -type f \( -name "*.mov" -o -name "*.mp4" -o -name "*.webm" \) -exec ls -t {} + | head -1
+   ```
+   - **If a video file IS found** → proceed to step 6 (run the analysis script). Do NOT fall back to archive.
+   - **If NO video file is found** → go to step 5 (archive fallback).
+
+5. **Archive fallback** (ONLY if step 4 found no video file). Load the most recent archived video:
    ```bash
    ls -dt ~/video-to-code-skill-storage/archive/*/ 2>/dev/null | head -1
    ```
