@@ -114,7 +114,11 @@ class VideoAnalyzer:
         print("\nSTEP 2: Transcribing audio...")
         print("-" * 40)
         transcription_start = time()
-        transcription = self._transcribe(video_path)
+        try:
+            transcription = self._transcribe(video_path)
+        except Exception as e:
+            print(f"  Transcription skipped (no audio or unsupported audio): {e}")
+            transcription = {"language": "unknown", "full_text": "", "segments": []}
         transcription_duration = time() - transcription_start
 
         # Store timing info

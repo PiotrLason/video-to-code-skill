@@ -68,34 +68,44 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    ```
    - If no matching folder is found, tell the user: **"No archived video found for timestamp `<timestamp>`"** and skip to step 3.
    - Tell the user which archived video is being loaded (show the archive folder name).
-   - If a matching folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 7.
+   - If a matching folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 8.
 
 3. **Find the latest video file** (by modification time):
    ```bash
    find ~/video-to-code-skill-storage -maxdepth 1 -type f \( -name "*.mov" -o -name "*.mp4" -o -name "*.webm" \) -exec ls -t {} + | head -1
    ```
 
-4. **If no video file found**, fall back to the most recent archived video:
+4. **Sanitize filenames** — replace invisible Unicode whitespace variants (e.g. macOS narrow no-break space `U+202F` before AM/PM) with regular spaces:
+   ```bash
+   python3 -c "
+   import os, re, glob
+   for f in glob.glob(os.path.expanduser('~/video-to-code-skill-storage/*')):
+       fixed = re.sub(r'[\u00a0\u202f\u2007\u2009\u200b]', ' ', f)
+       if fixed != f: os.rename(f, fixed)
+   "
+   ```
+
+5. **If no video file found**, fall back to the most recent archived video:
    ```bash
    ls -dt ~/video-to-code-skill-storage/archive/*/ 2>/dev/null | head -1
    ```
-   - If an archived folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 7.
+   - If an archived folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 8.
    - Tell the user which archived video is being loaded (show the archive folder name).
    - If no archived analysis exists either, tell the user: **"No current or archived videos to input into the context"** and stop.
 
-5. **Run the analysis script** (use the `-dt` or `-detection_threshold` parameter value if provided, otherwise default to `1`). Prefer `/usr/bin/python3` if available:
+6. **Run the analysis script** (use the `-dt` or `-detection_threshold` parameter value if provided, otherwise default to `1`). Prefer `/usr/bin/python3` if available:
    ```bash
    /usr/bin/python3 "${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py" <video_path> -o ~/video-to-code-skill-storage/analysis/<video_name> -t <detection_threshold>
    ```
 
-6. **Read the results**:
+7. **Read the results**:
    - Read `~/video-to-code-skill-storage/analysis/<video_name>/analysis.json`
    - Read each keyframe image listed in the analysis
 
-7. **Summarize** what the user is demonstrating or reporting — write a detailed content summary describing what is shown and said in the video with as much detail as possible. Present this summary to the user.
+8. **Summarize** what the user is demonstrating or reporting — write a detailed content summary describing what is shown and said in the video with as much detail as possible. Present this summary to the user.
 
-8. **Archive** the analyzed video (skip if using archived analysis from step 2 or 4):
-   - Create timestamp folder: `~/video-to-code-skill-storage/archive/YYYY-MM-DD_HH-MM-SS_<video_filename>/` where `<video_filename>` is the original video filename without extension; separate the timestamp and filename with a space where the OS allows (e.g. `2026-03-18_12-45-00 login flow dropdown bug/`), falling back to an underscore otherwise
+9. **Archive** the analyzed video (skip if using archived analysis from step 2 or 5):
+   - Create timestamp folder: `~/video-to-code-skill-storage/archive/YYYY-MM-DD_HH-MM-SS_<video_filename>/` where `YYYY-MM-DD_HH-MM-SS` is the **current date/time when the analysis is performed** (NOT the video file's creation or modification time), and `<video_filename>` is the original video filename without extension; separate the timestamp and filename with a space where the OS allows (e.g. `2026-03-18_12-45-00 login flow dropdown bug/`), falling back to an underscore otherwise
    - Move video file and analysis folder to archive
    - Save the detailed video analysis summary as `summary.md` in the archive folder, using this structure:
      - Start with a short, high-level overview (up to 10 paragraphs) of what the video covers, grouped by chapters and topics using bullet lists when needed and short paragraphs.
@@ -114,7 +124,7 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
      When I click on the dropdown it doesn't close properly, it just stays open. If I click elsewhere on the page it still doesn't dismiss. The only way to close it is to click the toggle again.
      ```
 
-9. **Ask the user** what they would like help with based on the feedback
+10. **Ask the user** what they would like help with based on the feedback
 
 ## Output Format
 
