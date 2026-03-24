@@ -6,7 +6,7 @@ compatibility: Requires Python 3, opencv-python, numpy, and mlx-whisper (or open
 disable-model-invocation: true
 metadata:
   author: Piotr Lason
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Initialize video-to-code environment
@@ -30,7 +30,7 @@ Sets up the storage folder and installs all required dependencies for the video-
    ██║   ██║   ██║    ██║      ██║   ██║██║  ██║██╔══╝
    ██║   ╚██████╔╝    ╚██████╗ ╚██████╔╝██████╔╝███████╗
    ╚═╝    ╚═════╝      ╚═════╝  ╚═════╝╚═════╝ ╚══════╝
-   SKILL SETUP v1.2
+   SKILL SETUP v1.3
 ```
 
 1. **Notify the user**: Tell them "Initializing video-to-code environment..."

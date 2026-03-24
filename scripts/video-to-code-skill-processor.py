@@ -10,7 +10,7 @@ Usage:
 
 Options:
     --output-dir, -o    Output directory (default: ./video_analysis)
-    --threshold, -t     Change detection threshold 0-100 (default: 5)
+    --visual-details, -vd  Visual detail level 1-10 (default: 10)
     --model, -m         Whisper model: tiny, base, small, medium, large (default: base)
     --language, -l      Language code for transcription (default: auto-detect)
     --verbose, -v       Verbose output
@@ -73,7 +73,7 @@ class VideoAnalyzer:
         language: str | None = None,
         verbose: bool = False,
     ):
-        self.keyframe_threshold = max(0, min(100, keyframe_threshold))
+        self.keyframe_threshold = max(1, min(10, keyframe_threshold))
         self.min_interval = min_interval
         self.whisper_model_name = whisper_model
         self.language = language
@@ -235,6 +235,8 @@ class VideoAnalyzer:
             _, thresh = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
             change_pct = (np.count_nonzero(thresh) / thresh.size) * 100
 
+            # change_pct is 0-100 (% of pixels changed), keyframe_threshold is 1-10
+            # This means -vd 10 captures frames with ≥1% change, -vd 1 requires ≥10% change
             if change_pct >= self.keyframe_threshold:
                 filename = f"keyframe_{len(keyframes):04d}_{self._format_ts_filename(timestamp)}.png"
                 filepath = output_dir / filename
@@ -489,7 +491,7 @@ Examples:
     python video-to-code-skill-processor.py recording.mp4
 
     # Custom output and settings
-    python video-to-code-skill-processor.py recording.mp4 -o ./analysis -t 10 -m small
+    python video-to-code-skill-processor.py recording.mp4 -o ./analysis -vd 8 -m small
 
     # Specify language for transcription
     python video-to-code-skill-processor.py recording.mp4 -l en
@@ -499,8 +501,8 @@ Examples:
     parser.add_argument("video", help="Path to video file")
     parser.add_argument("-o", "--output-dir", default="./video_analysis",
                         help="Output directory (default: ./video_analysis)")
-    parser.add_argument("-t", "--threshold", type=float, default=1.0,
-                        help="Keyframe detection threshold 0-100 (default: 1)")
+    parser.add_argument("-vd", "--visual-details", type=int, default=10, choices=range(1, 11),
+                        help="Visual detail level 1-10: 1 = fewest keyframes, 10 = most (default: 5)")
     parser.add_argument("-m", "--model", default="large-v3-turbo" if USE_MLX_WHISPER else "base",
                         choices=["tiny", "base", "small", "medium", "large", "large-v3", "large-v3-turbo"],
                         help="Whisper model (default: large-v3-turbo with MLX, base otherwise)")
@@ -509,8 +511,12 @@ Examples:
 
     args = parser.parse_args()
 
+    # Convert visual detail (1-10) to keyframe threshold (10-1)
+    # vd=1 (10%) → threshold=10 (least sensitive), vd=10 (100%) → threshold=1 (most sensitive)
+    keyframe_threshold = 11 - args.visual_details
+
     analyzer = VideoAnalyzer(
-        keyframe_threshold=args.threshold,
+        keyframe_threshold=keyframe_threshold,
         whisper_model=args.model,
         language=args.language,
         verbose=args.verbose,

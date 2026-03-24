@@ -6,7 +6,7 @@ compatibility: Requires Python 3, opencv-python, numpy, and mlx-whisper (or open
 disable-model-invocation: true
 metadata:
   author: Piotr Lason
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Your video recording will be added as a multimodal data bundle to the context window and tokenised as a part of your prompt
@@ -21,11 +21,13 @@ This skill runs only when explicitly invoked by the user.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-dt`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+| `-vd`, `-visual_details` | Visual detail level (1-10). 1 = 10% — fewest keyframes, 10 = 100% — most keyframes captured. | `10` |
+| `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" section in `summary.md` (1-10). 1 = brief overview, 10 = exhaustive long-form. | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive. | — |
 
 Examples:
-- `/video-to-code-skill:run-video-to-code-skill -dt 5`
+- `/video-to-code-skill:run-video-to-code-skill -vd 8`
+- `/video-to-code-skill:run-video-to-code-skill -sd 8`
 - `/video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51`
 
 ### Strict parameter parsing rules
@@ -33,7 +35,9 @@ Examples:
 **Arguments come ONLY from the `<command-message>` tag** in the conversation. The `<command-message>` tag contains the exact text the user typed after the slash command name. Parse parameters exclusively from that string.
 
 - If `<command-message>` is just `run` (no extra text), there are **zero** parameters.
-- If `<command-message>` is `run -dt 5`, the detection threshold is `5`.
+- If `<command-message>` is `run -vd 8`, the visual detail level is `8`.
+- If `<command-message>` is `run -sd 8`, the summary detail level is `8`.
+- If `<command-message>` is `run -vd 8 -sd 3`, both parameters are set.
 - If `<command-message>` is `run 2026-03-19_10-12-51`, the timestamp is `2026-03-19_10-12-51`.
 
 **Everything else is NOT a parameter** — including IDE context, additional working directories, open file paths, environment metadata.
@@ -57,8 +61,10 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    ██║   ██║   ██║    ██║      ██║   ██║██║  ██║██╔══╝
    ██║   ╚██████╔╝    ╚██████╗ ╚██████╔╝██████╔╝███████╗
    ╚═╝    ╚═════╝      ╚═════╝  ╚═════╝╚═════╝ ╚══════╝  
-   SKILL RUN v1.2
+   SKILL RUN v1.3
 ```
+
+`-vd <1-10>` visual detail — 1 = fewest keyframes, 10 = most (default: 10) · `-sd <1-10>` summary detail — 1 = brief, 10 = exhaustive (default: 5)
 
 1. **Notify the user**: Tell them "Analyzing user feedback video from ~/video-to-code-skill-storage - extracting key frames and narration transcript..."
 
@@ -70,12 +76,7 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    - Tell the user which archived video is being loaded (show the archive folder name).
    - If a matching folder exists, read its `analysis/*/analysis.json` and keyframe images, as well as `summary.md` and `narration.md` (if present) — skip to step 8.
 
-3. **Find the latest video file** (by modification time):
-   ```bash
-   find ~/video-to-code-skill-storage -maxdepth 1 -type f \( -name "*.mov" -o -name "*.mp4" -o -name "*.webm" \) -exec ls -t {} + | head -1
-   ```
-
-4. **Sanitize filenames** — replace invisible Unicode whitespace variants (e.g. macOS narrow no-break space `U+202F` before AM/PM) with regular spaces:
+3. **Sanitize filenames** — replace invisible Unicode whitespace variants (e.g. macOS narrow no-break space `U+202F` before AM/PM) with regular spaces:
    ```bash
    python3 -c "
    import os, re, glob
@@ -85,7 +86,14 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    "
    ```
 
-5. **If no video file found**, fall back to the most recent archived video:
+4. **Find the latest video file** (by modification time):
+   ```bash
+   find ~/video-to-code-skill-storage -maxdepth 1 -type f \( -name "*.mov" -o -name "*.mp4" -o -name "*.webm" \) -exec ls -t {} + | head -1
+   ```
+   - **If a video file IS found** → proceed to step 6 (run the analysis script). Do NOT fall back to archive.
+   - **If NO video file is found** → go to step 5 (archive fallback).
+
+5. **Archive fallback** (ONLY if step 4 found no video file). Load the most recent archived video:
    ```bash
    ls -dt ~/video-to-code-skill-storage/archive/*/ 2>/dev/null | head -1
    ```
@@ -93,9 +101,9 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    - Tell the user which archived video is being loaded (show the archive folder name).
    - If no archived analysis exists either, tell the user: **"No current or archived videos to input into the context"** and stop.
 
-6. **Run the analysis script** (use the `-dt` or `-detection_threshold` parameter value if provided, otherwise default to `1`). Prefer `/usr/bin/python3` if available:
+6. **Run the analysis script** (use the `-vd` or `-visual_details` parameter value if provided, otherwise default to `10`). Prefer `/usr/bin/python3` if available:
    ```bash
-   /usr/bin/python3 "${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py" <video_path> -o ~/video-to-code-skill-storage/analysis/<video_name> -t <detection_threshold>
+   /usr/bin/python3 "${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py" <video_path> -o ~/video-to-code-skill-storage/analysis/<video_name> -vd <visual_detail>
    ```
 
 7. **Read the results**:
@@ -112,7 +120,7 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
      - Add a **"Key Moments"** section that contains a Markdown table with at least these columns: `Timestamp`, `What's happening`. Each important event from the video should have its own row.
      - Add **Questions, Requests and Issues** mentioned in the recording
      - Include the **total analysis processing time** (sum of keyframe extraction and transcription) in a clearly labeled line, formatted as `HH:MM:SS` (hours:minutes:seconds), e.g. `Total analysis time: 00:07:35`.
-     - End with a final section (for example **"Detailed Walkthrough"**) that is a long-form essay addressed to a detailed oriented and technically savvy reader. This last chapter should contain the majority of the information from the video, walking through the flow, context, and reasoning in detail rather than just listing bullets.
+     - End with a final section (for example **"Detailed Walkthrough"**). The length and depth of this section is controlled by the `-sd` parameter (default: 5). Treat the value as a percentage scale: `-sd 1` means 10% of maximum detail (a short paragraph or two), `-sd 5` means 50% (a balanced walkthrough covering key points), `-sd 10` means 100% (an exhaustive long-form essay for a detail-oriented, technically savvy reader, covering every flow, context, and reasoning step).
    - If the video contains human narration/speech, save it as `narration.md` in the archive folder in screenplay-ready format with matching timestamp ranges. Each timestamp block must contain multiple sentences — combine short consecutive transcript segments into longer blocks rather than having one sentence per timestamp. Example:
      ```
      # Narration Transcript
@@ -152,7 +160,7 @@ The `${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py` script acce
 |----------|-------------|---------|
 | `<video_path>` | Path to video file | Required |
 | `-o, --output-dir` | Output directory | `./video_analysis` |
-| `-t, --threshold` | Keyframe detection threshold (0-100) | `1` |
+| `-vd, --visual-details` | Visual detail level (1-10) | `10` |
 | `-m, --model` | Whisper model (tiny, base, small, medium, large) | `base` or `large-v3-turbo` |
 
 ## Dependencies

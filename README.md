@@ -1,6 +1,6 @@
-# video-to-code-skill v1.2
+# video-to-code-skill v1.3
 
-A Claude Code Plugin following the open format: https://agentskills.io/what-are-skills, https://code.claude.com/docs/en/plugins
+Claude Code Plugin following the open format: [agentskills.io/what-are-skills](https://agentskills.io/what-are-skills), [code.claude.com/docs/en/plugins](https://code.claude.com/docs/en/plugins)
 
 Inputs the **content** of any video into **Claude Code prompt / context window** as a **multimodal bundle of voice transcription and data summary, time synced with keyframes** - screenshots of key moments from the video so it can be used for all further requests related to that content.
 
@@ -96,17 +96,18 @@ Run `/video-to-code-skill:setup-video-to-code-skill` to set up dependencies, the
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-dt`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+| `-vd`, `-visual_details` | Visual detail level (1-10). 1 — fewest keyframes, 10 — most keyframes captured, highest sensitivity to visual change. Default is 10 — optimized for screen recordings where every detail and transition matters. **REMEMBER: Higher value means higher COST in tokens | `10` |
+| `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" in `summary.md` (1-10). 1 = 10% detail (brief), 10 = 100% detail (exhaustive). | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive, skipping video processing. | — |
 
-Setting custom detection threshold is useful to tune the Skill to different video sources. Time will tell which settings work best for different applications of this Skill.
-More information will be added here.
+Both parameters use a 1-10 scale (10% to 100%). Tuning these is useful for different video sources and use cases.
 
 Examples:
 
 ```
 /video-to-code-skill:run-video-to-code-skill
-/video-to-code-skill:run-video-to-code-skill -dt 5
+/video-to-code-skill:run-video-to-code-skill -vd 8
+/video-to-code-skill:run-video-to-code-skill -sd 8
 /video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51
 ```
 
