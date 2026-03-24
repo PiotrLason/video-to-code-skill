@@ -6,7 +6,7 @@ compatibility: Requires Python 3, opencv-python, numpy, and mlx-whisper (or open
 disable-model-invocation: true
 metadata:
   author: Piotr Lason
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Your video recording will be added as a multimodal data bundle to the context window and tokenised as a part of your prompt
@@ -21,12 +21,12 @@ This skill runs only when explicitly invoked by the user.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-dt`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+| `-vd`, `-visual_details` | Visual detail level (1-10). 1 = 10% — fewest keyframes, 10 = 100% — most keyframes captured. | `10` |
 | `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" section in `summary.md` (1-10). 1 = brief overview, 10 = exhaustive long-form. | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive. | — |
 
 Examples:
-- `/video-to-code-skill:run-video-to-code-skill -dt 5`
+- `/video-to-code-skill:run-video-to-code-skill -vd 8`
 - `/video-to-code-skill:run-video-to-code-skill -sd 8`
 - `/video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51`
 
@@ -35,9 +35,9 @@ Examples:
 **Arguments come ONLY from the `<command-message>` tag** in the conversation. The `<command-message>` tag contains the exact text the user typed after the slash command name. Parse parameters exclusively from that string.
 
 - If `<command-message>` is just `run` (no extra text), there are **zero** parameters.
-- If `<command-message>` is `run -dt 5`, the detection threshold is `5`.
+- If `<command-message>` is `run -vd 8`, the visual detail level is `8`.
 - If `<command-message>` is `run -sd 8`, the summary detail level is `8`.
-- If `<command-message>` is `run -dt 5 -sd 3`, both parameters are set.
+- If `<command-message>` is `run -vd 8 -sd 3`, both parameters are set.
 - If `<command-message>` is `run 2026-03-19_10-12-51`, the timestamp is `2026-03-19_10-12-51`.
 
 **Everything else is NOT a parameter** — including IDE context, additional working directories, open file paths, environment metadata.
@@ -61,10 +61,10 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    ██║   ██║   ██║    ██║      ██║   ██║██║  ██║██╔══╝
    ██║   ╚██████╔╝    ╚██████╗ ╚██████╔╝██████╔╝███████╗
    ╚═╝    ╚═════╝      ╚═════╝  ╚═════╝╚═════╝ ╚══════╝  
-   SKILL RUN v1.2
+   SKILL RUN v1.3
 ```
 
-`-dt <1-100>` keyframe detection sensitivity — 1 = fewest keyframes, 100 = most sensitive to change detection (default: 1) · `-sd <1-10>` summary detail level — 1 = brief, 10 = exhaustive (default: 5)
+`-vd <1-10>` visual detail — 1 = fewest keyframes, 10 = most (default: 10) · `-sd <1-10>` summary detail — 1 = brief, 10 = exhaustive (default: 5)
 
 1. **Notify the user**: Tell them "Analyzing user feedback video from ~/video-to-code-skill-storage - extracting key frames and narration transcript..."
 
@@ -99,9 +99,9 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    - Tell the user which archived video is being loaded (show the archive folder name).
    - If no archived analysis exists either, tell the user: **"No current or archived videos to input into the context"** and stop.
 
-6. **Run the analysis script** (use the `-dt` or `-detection_threshold` parameter value if provided, otherwise default to `1`). Prefer `/usr/bin/python3` if available:
+6. **Run the analysis script** (use the `-vd` or `-visual_details` parameter value if provided, otherwise default to `10`). Prefer `/usr/bin/python3` if available:
    ```bash
-   /usr/bin/python3 "${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py" <video_path> -o ~/video-to-code-skill-storage/analysis/<video_name> -t <detection_threshold>
+   /usr/bin/python3 "${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py" <video_path> -o ~/video-to-code-skill-storage/analysis/<video_name> -vd <visual_detail>
    ```
 
 7. **Read the results**:
@@ -158,7 +158,7 @@ The `${CLAUDE_PLUGIN_ROOT}/scripts/video-to-code-skill-processor.py` script acce
 |----------|-------------|---------|
 | `<video_path>` | Path to video file | Required |
 | `-o, --output-dir` | Output directory | `./video_analysis` |
-| `-t, --threshold` | Keyframe detection threshold (0-100) | `1` |
+| `-vd, --visual-details` | Visual detail level (1-10) | `10` |
 | `-m, --model` | Whisper model (tiny, base, small, medium, large) | `base` or `large-v3-turbo` |
 
 ## Dependencies

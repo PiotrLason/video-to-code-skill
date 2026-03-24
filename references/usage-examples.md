@@ -17,9 +17,9 @@ cp ~/Downloads/bug-report.mov ~/video-to-code-skill-storage/
 # 2. In Claude Code, run the skill
 /video-to-code-skill:run-video-to-code-skill
 
-# 3. Optionally adjust keyframe detection threshold (0-100, default: 1)
-#    Use -dt or -detection_threshold
-/video-to-code-skill:run-video-to-code-skill -dt 5
+# 3. Optionally adjust visual detail level (1-10, default: 10)
+#    Use -vd or -visual_details
+/video-to-code-skill:run-video-to-code-skill -vd 8
 
 # 4. Optionally run the skill with action points
 /video-to-code-skill:run-video-to-code-skill and find instances when presenter was asking for feedback and describe what was shown in the video at that time
