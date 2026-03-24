@@ -22,10 +22,12 @@ This skill runs only when explicitly invoked by the user.
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `-dt`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+| `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" section in `summary.md` (1-10). 1 = brief overview, 10 = exhaustive long-form. | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive. | — |
 
 Examples:
 - `/video-to-code-skill:run-video-to-code-skill -dt 5`
+- `/video-to-code-skill:run-video-to-code-skill -sd 8`
 - `/video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51`
 
 ### Strict parameter parsing rules
@@ -34,6 +36,8 @@ Examples:
 
 - If `<command-message>` is just `run` (no extra text), there are **zero** parameters.
 - If `<command-message>` is `run -dt 5`, the detection threshold is `5`.
+- If `<command-message>` is `run -sd 8`, the summary detail level is `8`.
+- If `<command-message>` is `run -dt 5 -sd 3`, both parameters are set.
 - If `<command-message>` is `run 2026-03-19_10-12-51`, the timestamp is `2026-03-19_10-12-51`.
 
 **Everything else is NOT a parameter** — including IDE context, additional working directories, open file paths, environment metadata.
@@ -59,6 +63,8 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
    ╚═╝    ╚═════╝      ╚═════╝  ╚═════╝╚═════╝ ╚══════╝  
    SKILL RUN v1.2
 ```
+
+`-dt <1-100>` keyframe detection sensitivity — 1 = fewest keyframes, 100 = most sensitive to change detection (default: 1) · `-sd <1-10>` summary detail level — 1 = brief, 10 = exhaustive (default: 5)
 
 1. **Notify the user**: Tell them "Analyzing user feedback video from ~/video-to-code-skill-storage - extracting key frames and narration transcript..."
 
@@ -112,7 +118,7 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
      - Add a **"Key Moments"** section that contains a Markdown table with at least these columns: `Timestamp`, `What's happening`. Each important event from the video should have its own row.
      - Add **Questions, Requests and Issues** mentioned in the recording
      - Include the **total analysis processing time** (sum of keyframe extraction and transcription) in a clearly labeled line, formatted as `HH:MM:SS` (hours:minutes:seconds), e.g. `Total analysis time: 00:07:35`.
-     - End with a final section (for example **"Detailed Walkthrough"**) that is a long-form essay addressed to a detailed oriented and technically savvy reader. This last chapter should contain the majority of the information from the video, walking through the flow, context, and reasoning in detail rather than just listing bullets.
+     - End with a final section (for example **"Detailed Walkthrough"**). The length and depth of this section is controlled by the `-sd` parameter (default: 5). Treat the value as a percentage scale: `-sd 1` means 10% of maximum detail (a short paragraph or two), `-sd 5` means 50% (a balanced walkthrough covering key points), `-sd 10` means 100% (an exhaustive long-form essay for a detail-oriented, technically savvy reader, covering every flow, context, and reasoning step).
    - If the video contains human narration/speech, save it as `narration.md` in the archive folder in screenplay-ready format with matching timestamp ranges. Each timestamp block must contain multiple sentences — combine short consecutive transcript segments into longer blocks rather than having one sentence per timestamp. Example:
      ```
      # Narration Transcript

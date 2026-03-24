@@ -97,6 +97,7 @@ Run `/video-to-code-skill:setup-video-to-code-skill` to set up dependencies, the
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `-dt`, `-detection_threshold` | Keyframe detection threshold (0-100). Lower values capture more keyframes. | `1` |
+| `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" in `summary.md` (1-10). 1 = 10% detail (brief), 10 = 100% detail (exhaustive). | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive, skipping video processing. | — |
 
 Setting custom detection threshold is useful to tune the Skill to different video sources. Time will tell which settings work best for different applications of this Skill.
@@ -107,6 +108,7 @@ Examples:
 ```
 /video-to-code-skill:run-video-to-code-skill
 /video-to-code-skill:run-video-to-code-skill -dt 5
+/video-to-code-skill:run-video-to-code-skill -sd 8
 /video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51
 ```
 
