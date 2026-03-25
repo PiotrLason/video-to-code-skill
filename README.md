@@ -56,7 +56,11 @@ git clone https://github.com/PiotrLason/video-to-code-skill.git
 
 ### After installation
 
-Run `/video-to-code-skill:setup-video-to-code-skill` to set up dependencies, then `/video-to-code-skill:run-video-to-code-skill` to analyze a video.
+Run `/video-to-code-skill -> setup-video-to-code-skill` to set up dependencies, then `/video-to-code-skill -> run-video-to-code-skill` to analyze a video.
+
+At any time, run `/video-to-code-skill -> show-help-video-to-code-skill` to display the full plugin `README.md` directly in Claude Code with Markdown formatting.
+
+Both commands also print the local path to the installed `README.md`, so users who installed from the marketplace can still find the full documentation from inside the plugin bundle.
 
 ### Updating
 
@@ -66,7 +70,7 @@ Run `/video-to-code-skill:setup-video-to-code-skill` to set up dependencies, the
 
 ## Prerequisites
 
-*Dependencies are installed by running `/video-to-code-skill:setup-video-to-code-skill`.*
+*Dependencies are installed by running `/video-to-code-skill -> setup-video-to-code-skill`.*
 
 | Requirement | Installation |
 |---|---|
@@ -89,14 +93,15 @@ Run `/video-to-code-skill:setup-video-to-code-skill` to set up dependencies, the
 
 | Skill | Invocation | Description |
 |-------|------------|-------------|
-| **setup-video-to-code-skill** | `/video-to-code-skill:setup-video-to-code-skill` | Sets up storage folder and installs dependencies. Run once before first use. |
-| **run-video-to-code-skill** | `/video-to-code-skill:run-video-to-code-skill` | Analyzes a video — extracts keyframes, transcribes audio, summarizes, and archives. |
+| **setup-video-to-code-skill** | `/video-to-code-skill -> setup-video-to-code-skill` | Sets up storage folder and installs dependencies. Run once before first use. |
+| **run-video-to-code-skill** | `/video-to-code-skill -> run-video-to-code-skill` | Analyzes a video — extracts keyframes, transcribes audio, summarizes, and archives. |
+| **show-help-video-to-code-skill** | `/video-to-code-skill -> show-help-video-to-code-skill` | Displays the full `README.md` in Markdown formatting inside Claude Code. |
 
-### Parameters (for `/video-to-code-skill:run-video-to-code-skill`)
+### Parameters (for `/video-to-code-skill -> run-video-to-code-skill`)
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `-vd`, `-visual_details` | Visual detail level (1-10). 1 — fewest keyframes, 10 — most keyframes captured, highest sensitivity to visual change. Default is 10 — optimized for screen recordings where every detail and transition matters. **REMEMBER: Higher value means higher COST in tokens | `10` |
+| `-vd`, `-visual_details` | Visual detail level (1-10). 1 — fewest keyframes, 10 — most keyframes captured, highest sensitivity to visual change. Default is 10 — optimized for screen recordings where every detail and transition matters. **REMEMBER: Higher value means higher COST in tokens** | `10` |
 | `-sd`, `-summary_details` | Detail level for the "Detailed Walkthrough" in `summary.md` (1-10). 1 = 10% detail (brief), 10 = 100% detail (exhaustive). | `5` |
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive, skipping video processing. | — |
 
@@ -105,10 +110,10 @@ Both parameters use a 1-10 scale (10% to 100%). Tuning these is useful for diffe
 Examples:
 
 ```
-/video-to-code-skill:run-video-to-code-skill
-/video-to-code-skill:run-video-to-code-skill -vd 8
-/video-to-code-skill:run-video-to-code-skill -sd 8
-/video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51
+/video-to-code-skill -> run-video-to-code-skill
+/video-to-code-skill -> run-video-to-code-skill -vd 8
+/video-to-code-skill -> run-video-to-code-skill -sd 8
+/video-to-code-skill -> run-video-to-code-skill 2026-03-19_10-12-51
 ```
 
 ## Output

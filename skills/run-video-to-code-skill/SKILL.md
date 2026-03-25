@@ -26,9 +26,9 @@ This skill runs only when explicitly invoked by the user.
 | `YYYY-MM-DD_HH-MM-SS` | Timestamp of an archived video to load directly from the archive. | — |
 
 Examples:
-- `/video-to-code-skill:run-video-to-code-skill -vd 8`
-- `/video-to-code-skill:run-video-to-code-skill -sd 8`
-- `/video-to-code-skill:run-video-to-code-skill 2026-03-19_10-12-51`
+- `/video-to-code-skill -> run-video-to-code-skill -vd 8`
+- `/video-to-code-skill -> run-video-to-code-skill -sd 8`
+- `/video-to-code-skill -> run-video-to-code-skill 2026-03-19_10-12-51`
 
 ### Strict parameter parsing rules
 
@@ -66,7 +66,11 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
 
 `-vd <1-10>` visual detail — 1 = fewest keyframes, 10 = most (default: 10) · `-sd <1-10>` summary detail — 1 = brief, 10 = exhaustive (default: 5)
 
-1. **Notify the user**: Tell them "Analyzing user feedback video from ~/video-to-code-skill-storage - extracting key frames and narration transcript..."
+1. **Notify the user**:
+   - Immediately tell them: "URL: https://github.com/PiotrLason/video-to-code-skill"
+   - Immediately tell them: "Help: run `/video-to-code-skill -> show-help-video-to-code-skill` to display the full plugin `README.md` with Markdown formatting."
+   - Tell them "Analyzing user feedback video from ~/video-to-code-skill-storage - extracting key frames and narration transcript..."
+   - Immediately tell them: "Documentation: open `${CLAUDE_PLUGIN_ROOT}/README.md` for setup, usage, parameters, outputs, and troubleshooting."
 
 2. **If a timestamp argument is provided** (matches `YYYY-MM-DD_HH-MM-SS` and follows "Strict parameter parsing rules"), look for a matching archive folder:
    ```bash
@@ -109,6 +113,8 @@ Important: You can only modify files in `~/video-to-code-skill-storage` folder. 
 7. **Read the results**:
    - Read `~/video-to-code-skill-storage/analysis/<video_name>/analysis.json`
    - Read each keyframe image listed in the analysis
+   - Count how many keyframe images were created or found
+   - Determine the size in KB of `summary.md` and, if present, `narration.md`
 
 8. **Summarize** what the user is demonstrating or reporting — write a detailed content summary describing what is shown and said in the video with as much detail as possible. Present this summary to the user.
 
@@ -140,10 +146,14 @@ After analyzing, provide:
 
 - **Video**: filename and duration
 - **Analysis time**: Total processing time (keyframe extraction + transcription) formatted as `HH:MM:SS`
+- **Keyframes**: Total number of keyframes created or found
+- **Artifacts**: `summary.md` size in KB, and `narration.md` size in KB if it exists
 - **Summary**: Detailed content summary — describe what is shown, demonstrated, and said in as much detail as possible
 - **Key moments**: Important timestamps with what's happening
 - **User's intent**: What they seem to want help with
 - **Questions and requests in the recording**: List all questions and requests from the presenter in the recording. Try to answer the questions.
+- **Documentation**: `${CLAUDE_PLUGIN_ROOT}/README.md`
+- **Help command**: `/video-to-code-skill -> show-help-video-to-code-skill`
 
 ### Archived artifacts
 Saved alongside the video and analysis in the archive folder:
