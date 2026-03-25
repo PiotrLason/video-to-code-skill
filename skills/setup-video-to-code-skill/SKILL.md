@@ -33,7 +33,11 @@ Sets up the storage folder and installs all required dependencies for the video-
    SKILL SETUP v1.3
 ```
 
-1. **Notify the user**: Tell them "Initializing video-to-code environment..."
+1. **Notify the user**:
+   - Immediately tell them: "URL: https://github.com/PiotrLason/video-to-code-skill"
+   - Immediately tell them: "Help: run `/video-to-code-skill -> show-help-video-to-code-skill` to display the full plugin `README.md` with Markdown formatting."
+   - Tell them "Initializing video-to-code environment..."
+   - Immediately tell them: "Documentation: open `${CLAUDE_PLUGIN_ROOT}/README.md` for setup, usage, parameters, outputs, and troubleshooting."
 
 2. **Ensure storage folder exists**:
    ```bash
@@ -63,7 +67,9 @@ Sets up the storage folder and installs all required dependencies for the video-
    - numpy: installed
    - mlx-whisper or openai-whisper: installed
    - ffmpeg: installed
-   - "Environment is ready. Place a video file (.mov, .mp4, .webm) in ~/video-to-code-skill-storage and run `/video-to-code-skill:run-video-to-code-skill` to analyze it."
+   - Documentation: `${CLAUDE_PLUGIN_ROOT}/README.md`
+   - Help command: `/video-to-code-skill -> show-help-video-to-code-skill`
+   - "Environment is ready. Place a video file (.mov, .mp4, .webm) in ~/video-to-code-skill-storage and run `/video-to-code-skill -> run-video-to-code-skill` to analyze it."
 
 ## Dependencies
 
